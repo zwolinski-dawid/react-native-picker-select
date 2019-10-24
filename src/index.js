@@ -403,7 +403,11 @@ export default class RNPickerSelect extends PureComponent {
     }
 
     renderIOS() {
-        const { style, modalProps, pickerProps } = this.props;
+        const { style, renderModelContentIOS } = this.props;
+
+        if (renderModelContentIOS != null) {
+            renderModelContentIOS(this.state.showPicker && this.renderModelContentIOS())
+        }
 
         return (
             <View style={[defaultStyles.viewContainer, style.viewContainer]}>
@@ -415,43 +419,35 @@ export default class RNPickerSelect extends PureComponent {
                 >
                     {this.renderTextInputOrChildren()}
                 </TouchableWithoutFeedback>
-                <Modal
-                    testID="ios_modal"
-                    visible={this.state.showPicker}
-                    transparent
-                    animationType={this.state.animationType}
-                    supportedOrientations={['portrait', 'landscape']}
-                    onDismiss={this.triggerDoneCallback}
-                    onOrientationChange={this.onOrientationChange}
-                    {...modalProps}
-                >
-                    <TouchableOpacity
-                        style={[defaultStyles.modalViewTop, style.modalViewTop]}
-                        testID="ios_modal_top"
-                        onPress={() => {
-                            this.togglePicker(true);
-                        }}
-                    />
-                    {this.renderInputAccessoryView()}
-                    <View
-                        style={[
-                            defaultStyles.modalViewBottom,
-                            { height: this.state.orientation === 'portrait' ? 215 : 162 },
-                            style.modalViewBottom,
-                        ]}
-                    >
-                        <Picker
-                            testID="ios_picker"
-                            onValueChange={this.onValueChange}
-                            selectedValue={this.state.selectedItem.value}
-                            {...pickerProps}
-                        >
-                            {this.renderPickerItems()}
-                        </Picker>
-                    </View>
-                </Modal>
             </View>
         );
+    }
+
+    renderModelContentIOS() {
+        const { style, pickerProps } = this.props;
+
+        return (
+            <React.Fragment>
+                <View style={{flex: 1}} pointerEvents={'box-none'} />
+                {this.renderInputAccessoryView()}
+                <View
+                    style={[
+                        defaultStyles.modalViewBottom,
+                        { height: this.state.orientation === 'portrait' ? 215 : 162 },
+                        style.modalViewBottom,
+                    ]}
+                >
+                    <Picker
+                        testID="ios_picker"
+                        onValueChange={this.onValueChange}
+                        selectedValue={this.state.selectedItem.value}
+                        {...pickerProps}
+                    >
+                        {this.renderPickerItems()}
+                    </Picker>
+                </View>
+            </React.Fragment>
+        )
     }
 
     renderAndroidHeadless() {
