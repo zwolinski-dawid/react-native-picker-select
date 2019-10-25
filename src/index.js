@@ -403,10 +403,10 @@ export default class RNPickerSelect extends PureComponent {
     }
 
     renderIOS() {
-        const { style, renderModelContentIOS } = this.props;
+        const { style, renderModelContentIOS, modalProps } = this.props;
 
         if (renderModelContentIOS != null) {
-            renderModelContentIOS(this.state.showPicker && this.renderModelContentIOS())
+            renderModelContentIOS(this.state.showPicker && this.renderModelContentIOS(false))
         }
 
         return (
@@ -419,16 +419,39 @@ export default class RNPickerSelect extends PureComponent {
                 >
                     {this.renderTextInputOrChildren()}
                 </TouchableWithoutFeedback>
+                <Modal
+                    testID="ios_modal"
+                    visible={renderModelContentIOS == null && this.state.showPicker}
+                    transparent
+                    animationType={this.state.animationType}
+                    supportedOrientations={['portrait', 'landscape']}
+                    onDismiss={this.triggerDoneCallback}
+                    onOrientationChange={this.onOrientationChange}
+                    {...modalProps}
+                >
+                    {this.renderModelContentIOS(true)}
+                </Modal>
             </View>
         );
     }
 
-    renderModelContentIOS() {
+    renderModelContentIOS(useTouchableBG) {
         const { style, pickerProps } = this.props;
 
         return (
             <React.Fragment>
-                <View style={{flex: 1}} pointerEvents={'box-none'} />
+                {useTouchableBG && (
+                    <TouchableOpacity
+                        style={[defaultStyles.modalViewTop, style.modalViewTop]}
+                        testID="ios_modal_top"
+                        onPress={() => {
+                            this.togglePicker(true);
+                        }}
+                    />
+                )}
+                {!useTouchableBG && (
+                    <View style={{flex: 1}} pointerEvents={'box-none'} />
+                )}
                 {this.renderInputAccessoryView()}
                 <View
                     style={[
